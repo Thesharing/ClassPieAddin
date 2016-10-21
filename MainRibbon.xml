@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+  <ribbon>
+    <tabs>
+      <tab idMso="TabAddIns">
+        <group id="ContentGroup"
+               label="TestFirst">
+          <button id="testButton" label="Test" screentip="Test"/>
+        </group>
+        <group id="HelpGroup"
+               label="TestTwo">
+          <button id="newWindowButton" label="New Window" screentip="Pop a new window." onAction="OnNewWindowButton_Click" supertip="POP A NEW WINDOW."/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
+

@@ -1,0 +1,15 @@
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\ClassPieAddin.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\ClassPieAddin.pdb
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\ClassPieAddin.dll.manifest
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\ClassPieAddin.vsto
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\Microsoft.Office.Tools.Common.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\Microsoft.Office.Tools.Common.v4.0.Utilities.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\Microsoft.Office.Tools.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\Microsoft.Office.Tools.v4.0.Framework.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\bin\Debug\Microsoft.VisualStudio.Tools.Applications.Runtime.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.csprojResolveAssemblyReference.cache
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.Properties.Resources.resources
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.TestForm.resources
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.csproj.GenerateResource.Cache
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.dll
+c:\users\thesharing\documents\visual studio 2015\Projects\ClassPieAddin\ClassPieAddin\obj\Debug\ClassPieAddin.pdb
