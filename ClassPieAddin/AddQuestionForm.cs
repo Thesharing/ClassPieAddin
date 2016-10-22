@@ -42,10 +42,21 @@ namespace ClassPieAddin {
                     slide.Select();
                 }
             }
+            if (slides.Count > 0) {
+                try {
+                    Setting.questionCount = int.Parse(slides[1].Tags["TotalCount"]);
+                }
+                catch {
+                }
+            }
             slide.Tags.Add("Question", "Yes");
+            slide.Tags.Add("Number", (++Setting.questionCount).ToString());
             slide.Tags.Add("Selection", "Single");
             slide.Tags.Add("Answer", "Not specified.");
             slide.Tags.Add("Count", "4");
+            if(slides.Count > 0) {
+                slides[1].Tags.Add("TotalCount", Setting.questionCount.ToString());
+            }
 
             var textBoxTitle = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 30, 600, 50);
             textBoxTitle.Name = "TextBoxTitle";

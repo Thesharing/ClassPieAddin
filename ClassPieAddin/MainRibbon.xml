@@ -15,7 +15,7 @@
         </group>
         <group id="GroupDanmaku"
                label="Danmaku">
-          <button id="danmakuButton" label="Danmaku On"
+          <button id="danmakuButton" getLabel="danmakuLabel"
                   screentip="Display the danmaku (or not)."
                   onAction="OnDanmakuButton_Click"
                   supertip="Display the danmaku (or not)." size="large"/>

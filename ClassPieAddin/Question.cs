@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ClassPieAddin {
-    class Question {
+    public class Question {
         public int number;
+        public int count;
         public string question;
         public List<Choice> choice;
-        public int count;
         public Question(int number, string question) {
             this.number = number;
             this.question = question;

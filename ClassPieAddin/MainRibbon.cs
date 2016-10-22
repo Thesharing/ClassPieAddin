@@ -37,19 +37,12 @@ namespace ClassPieAddin {
     [ComVisible(true)]
     public class MainRibbon : Office.IRibbonExtensibility {
         private Office.IRibbonUI ribbon;
-        private Timer timer;
 
+        public bool isDanmakuOn = false;
         public bool hasStartAnswer = false;
 
         public MainRibbon() {
-            timer = new Timer(3000);
-            timer.Elapsed += Timer_Elapsed;
-            timer.AutoReset = false;
-        }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
-            
-            
         }
 
         #region IRibbonExtensibility 成员
@@ -81,41 +74,16 @@ namespace ClassPieAddin {
         }
 
         public void OnDanmakuButton_Click(Office.IRibbonControl control) {
-            if (Setting.problemNumber != -1) {
-                if (Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + "}") == true) {
-                    PowerPoint.Application Application = Globals.ThisAddIn.Application;
-                    PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
-                    PowerPoint.Slide slide;
-                    if (Application.SlideShowWindows.Count > 0) {
-                        slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
-                    }
-                    else {
-                        slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
-                    }
-                    Image image = Image.FromFile(Path.GetTempPath() + "\\classpieaddin.bmp");
-                    float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
-                    float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
-                    MessageBox.Show((Math.Max(screenWidth - image.Width, 0) / 2).ToString());
-                    MessageBox.Show((Math.Max(screenHeight - image.Height, 0) / 2).ToString());
-                    slide.Shapes.AddPicture(Path.GetTempPath() + "\\classpieaddin.bmp", Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, Math.Max(screenWidth - image.Width, 0) / 2, Math.Max(screenHeight - image.Height, 0) / 2);
-                }
-                else {
-                    MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1).");
-                }
-            }
-            else {
-                MessageBox.Show("Please upload your questions first.");
-            }
+            isDanmakuOn = isDanmakuOn == true ? false : true;
         }
 
         public void OnUploadQuestionButton_Click(Office.IRibbonControl control) {
             PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
-            List<Question> problem = new List<Question>();
-            int number = 0;
+            Problem problem = new Problem();
             foreach (PowerPoint.Slide slide in slides) {
                 try {
                     if(slide.Tags["Question"] == "Yes") {
-                        Question question = new Question(++number,slide.Shapes["TextBoxQuestion"].TextFrame.TextRange.Text);
+                        Question question = new Question(int.Parse(slide.Tags["Number"]),slide.Shapes["TextBoxQuestion"].TextFrame.TextRange.Text);
                         try {
                             for (int i = 1; i < 26; i++) {
                                 question.Add(slide.Shapes["TextBoxAnswer" + i.ToString()].TextFrame.TextRange.Text);
@@ -130,7 +98,7 @@ namespace ClassPieAddin {
 
                 }
             }
-            if (problem.Count > 0) {
+            if (problem.count > 0) {
                 string message = JsonConvert.SerializeObject(problem);
                 MessageBox.Show(message);
                 string str = Communitcate.SendAndReceiveStr(message + "}", "http://www.zhengzi.me/classpie/controller/appctrl.php?func=sendProblem&para={\"problemInfo\":");
@@ -138,7 +106,7 @@ namespace ClassPieAddin {
                     Setting.problemNumber = int.Parse(str);
                 }
                 catch {
-                    MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1).");
+                    MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1)."+"\nReceive: "+str);
                 }
             }
         }
@@ -174,6 +142,15 @@ namespace ClassPieAddin {
             return hasStartAnswer;
         }
 
+        public string GetDanmakuLabel(Office.IRibbonControl control) {
+            if(isDanmakuOn == true) {
+                return "Danmaku On";
+            }
+            else {
+                return "Danmaku Off";
+            }
+        }
+
         public void BeginButton_Click(Office.IRibbonControl control) {
             if (Setting.problemNumber == -1) {
                 MessageBox.Show("Please upload your questions first.");
@@ -185,18 +162,21 @@ namespace ClassPieAddin {
 
         public void EndButton_Click(Office.IRibbonControl control) {
             if(hasStartAnswer == true) {
+                PowerPoint.Application Application = Globals.ThisAddIn.Application;
+                PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
+                PowerPoint.Slide slide;
+                if (Application.SlideShowWindows.Count > 0) {
+                    slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
+                }
+                else {
+                    slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
+                }
                 if (Setting.problemNumber != -1) {
-                    if (Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + "}") == true) {
-                        PowerPoint.Application Application = Globals.ThisAddIn.Application;
-                        PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
-                        PowerPoint.Slide slide;
-                        if (Application.SlideShowWindows.Count > 0) {
-                            slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
-                        }
-                        else {
-                            slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
-                        }
-                        slide.Shapes.AddPicture(Path.GetTempPath() + "\\classpieaddin.bmp", Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, 0, 0);
+                    if(Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + ", \"questionId\":" + slide.Tags["Number"] + "}") == true) {
+                        Image image = Image.FromFile(Path.GetTempPath() + "\\classpieaddin.bmp");
+                        float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
+                        float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
+                        slide.Shapes.AddPicture(Path.GetTempPath() + "\\classpieaddin.bmp", Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, Math.Max(screenWidth - image.Width, 0) / 2, Math.Max(screenHeight - image.Height, 0) / 2);
                     }
                     else {
                         MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1).");

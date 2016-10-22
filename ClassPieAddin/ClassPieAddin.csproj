@@ -190,10 +190,22 @@
     </Compile>
     <Compile Include="Choice.cs" />
     <Compile Include="Communitcate.cs" />
+    <Compile Include="Danmaku.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DanmakuEngine.cs" />
     <Compile Include="MainRibbon.cs" />
+    <Compile Include="MyWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MyWindow.Designer.cs">
+      <DependentUpon>MyWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Problem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Win32.cs" />
     <EmbeddedResource Include="AddQuestionForm.resx">
       <DependentUpon>AddQuestionForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -46,7 +46,7 @@
             this.buttonDelete.Name = "buttonDelete";
             this.buttonDelete.Size = new System.Drawing.Size(75, 23);
             this.buttonDelete.TabIndex = 1;
-            this.buttonDelete.Text = "删除选项";
+            this.buttonDelete.Text = "Delete";
             this.buttonDelete.UseVisualStyleBackColor = true;
             this.buttonDelete.Click += new System.EventHandler(this.buttonDelete_Click);
             // 
@@ -109,9 +109,9 @@
             this.labelQuestion.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.labelQuestion.Location = new System.Drawing.Point(20, 14);
             this.labelQuestion.Name = "labelQuestion";
-            this.labelQuestion.Size = new System.Drawing.Size(98, 17);
+            this.labelQuestion.Size = new System.Drawing.Size(133, 17);
             this.labelQuestion.TabIndex = 5;
-            this.labelQuestion.Text = "Question Desc.:";
+            this.labelQuestion.Text = "Question Description:";
             // 
             // label4
             // 
@@ -165,7 +165,7 @@
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(75, 23);
             this.buttonAdd.TabIndex = 0;
-            this.buttonAdd.Text = "增加选项";
+            this.buttonAdd.Text = "Add";
             this.buttonAdd.UseVisualStyleBackColor = true;
             this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
             // 
