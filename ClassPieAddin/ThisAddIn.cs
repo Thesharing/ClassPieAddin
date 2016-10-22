@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
+using vsto=Microsoft.Office.Tools;
 
 namespace ClassPieAddin
 {
@@ -12,7 +13,11 @@ namespace ClassPieAddin
     {
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            //main.Application.SlideShowNextSlide += Application_SlideShowNextSlide;
         }
+
+        /*private void Application_SlideShowNextSlide(PowerPoint.SlideShowWindow Wn) {
+        }*/
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
