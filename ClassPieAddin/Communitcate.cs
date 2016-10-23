@@ -22,18 +22,22 @@ namespace ClassPieAddin {
             }
         }
 
-        public static bool SendAndSavePic(string url) {
-            try {
+        public static string SendAndSavePic(string url) {
+            System.Diagnostics.Debug.WriteLine(url);
+            string fileName = null;
+            //try {
                 using (WebClient client = new WebClient()) {
                     byte[] buffer = client.DownloadData(url);
                     Image image = (Bitmap)((new ImageConverter()).ConvertFrom(buffer));
-                    image.Save(Path.GetTempPath() + "\\classpieaddin.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+                    Random random = new Random();
+                    fileName = Path.GetTempPath() + "\\classpieaddin" + (random.Next() % 1000).ToString() + ".png";
+                    image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                 }
-                return true;
-            }
-            catch {
-                return false;
-            }
+                return fileName;
+            //}
+            //catch {
+                //return false;
+            //}
         }
     }
 }

@@ -29,6 +29,8 @@ namespace ClassPieAddin
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            Globals.ThisAddIn.Application.SlideShowBegin += Application_SlideShowBegin;
+            Globals.ThisAddIn.Application.SlideShowEnd += Application_SlideShowEnd;
             //danmakuEngine.ShowDanmaku("This is a long word.", System.Drawing.Color.Black, new Font("微软雅黑", 16));
             fetchBW.WorkerReportsProgress = true;
             fetchBW.WorkerSupportsCancellation = true;
@@ -45,21 +47,7 @@ namespace ClassPieAddin
             getWebContentTimer.Elapsed += new ElapsedEventHandler(getWebContentTimeOut);
             getWebContentTimer.Interval = 3000;
             getWebContentTimer.AutoReset = false; // 不会自动重置计时器，即只计时一次
-            this.Application.SlideShowBegin += Application_SlideShowBegin;
-            this.Application.SlideShowEnd += Application_SlideShowEnd;
         }
-
-        private void Application_SlideShowBegin(PowerPoint.SlideShowWindow Wn) {
-            timer.Start();
-            if(danmakuEngine.Hidden == true) {
-                danmakuEngine.Hidden = false;
-            }
-        }
-
-        private void Application_SlideShowEnd(PowerPoint.Presentation Pres) {
-            timer.Stop();
-        }
-
 
         private void OnTimedEvent(object sender, EventArgs e) {
             if (danmuStorage.Count > 0) {
@@ -79,6 +67,23 @@ namespace ClassPieAddin
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
         }
+
+
+        private void Application_SlideShowBegin(PowerPoint.SlideShowWindow Wn) {
+            if (Setting.mainRibbon.isDanmakuOn) {
+                this.timer.Start();
+                if (this.danmakuEngine.Hidden == true) {
+                    this.danmakuEngine.Hidden = false;
+                }
+            }
+        }
+
+        private void Application_SlideShowEnd(PowerPoint.Presentation Pres) {
+            if (Setting.mainRibbon.isDanmakuOn) {
+                this.timer.Stop();
+            }
+        }
+
 
         protected override Microsoft.Office.Core.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {

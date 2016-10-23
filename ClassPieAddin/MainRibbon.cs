@@ -42,7 +42,7 @@ namespace ClassPieAddin {
         public bool hasStartAnswer = false;
 
         public MainRibbon() {
-
+            Setting.mainRibbon = this;
         }
 
         #region IRibbonExtensibility 成员
@@ -73,8 +73,9 @@ namespace ClassPieAddin {
             ct.Width = 250;
         }
 
-        public void OnDanmakuButton_Click(Office.IRibbonControl control) {
-            isDanmakuOn = isDanmakuOn == true ? false : true;
+        public void OnDanmakuButton_Click(Office.IRibbonControl control, bool pressed) {
+            isDanmakuOn = pressed;
+            ribbon.InvalidateControl("danmakuButton");
         }
 
         public void OnUploadQuestionButton_Click(Office.IRibbonControl control) {
@@ -100,10 +101,41 @@ namespace ClassPieAddin {
             }
             if (problem.count > 0) {
                 string message = JsonConvert.SerializeObject(problem);
-                MessageBox.Show(message);
+                //MessageBox.Show(message);
                 string str = Communitcate.SendAndReceiveStr(message + "}", "http://www.zhengzi.me/classpie/controller/appctrl.php?func=sendProblem&para={\"problemInfo\":");
+                System.Diagnostics.Debug.WriteLine(str);
                 try {
                     Setting.problemNumber = int.Parse(str);
+                    PowerPoint.Application Application = Globals.ThisAddIn.Application;
+                    PowerPoint.Slide slide;
+                    if (Application.SlideShowWindows.Count > 0) {
+                        slide = slides.Add(1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                        slide.Select();
+                    }
+                    else {
+                        try {
+                            slide = slides.Add(1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                            slide.Select();
+                        }
+                        catch (COMException error) {
+                            slide = slides.Add(1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                            slide.Select();
+                        }
+                    }
+                    string fileName = Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getQrCode&para={\"problemId\":" + Setting.problemNumber.ToString() + "}");
+                    if (fileName != null) {
+                        Image image = Image.FromFile(fileName);
+                        float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
+                        float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
+                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, 280, 100, 400, 400);
+                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 180, 50, 800, 50);
+                        textBoxAnswer.Name = "tipsTextBox";
+                        textBoxAnswer.TextFrame.TextRange.Text = "Scan the QR code to answer questions.";
+                        textBoxAnswer.TextFrame.TextRange.Font.Size = 36;
+                    }
+                    else {
+                        MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1).");
+                    }
                 }
                 catch {
                     MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1)."+"\nReceive: "+str);
@@ -142,12 +174,29 @@ namespace ClassPieAddin {
             return hasStartAnswer;
         }
 
+        public Bitmap GetUploadButtonImage(Office.IRibbonControl control) {
+            return IconResource.upload;
+        }
+
+        public Bitmap GetAddQuestionImage(Office.IRibbonControl control) {
+            return IconResource.addQuestion;
+        }
+
         public string GetDanmakuLabel(Office.IRibbonControl control) {
             if(isDanmakuOn == true) {
                 return "Danmaku On";
             }
             else {
                 return "Danmaku Off";
+            }
+        }
+
+        public Bitmap GetDanmakuImage(Office.IRibbonControl control) {
+            if(isDanmakuOn == true) {
+                return IconResource.danmakuOn;
+            }
+            else {
+                return IconResource.danmakuOff;
             }
         }
 
@@ -172,11 +221,31 @@ namespace ClassPieAddin {
                     slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
                 }
                 if (Setting.problemNumber != -1) {
-                    if(Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + ", \"questionId\":" + slide.Tags["Number"] + "}") == true) {
-                        Image image = Image.FromFile(Path.GetTempPath() + "\\classpieaddin.bmp");
+                    string fileName = Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + ", \"questionId\":" + slide.Tags["Number"] + "}");
+                    if (fileName != null){
+                        Image image = Image.FromFile(fileName);
                         float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
                         float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
-                        slide.Shapes.AddPicture(Path.GetTempPath() + "\\classpieaddin.bmp", Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, Math.Max(screenWidth - image.Width, 0) / 2, Math.Max(screenHeight - image.Height, 0) / 2);
+                        if (Application.SlideShowWindows.Count > 0) {
+                            slide = slides.Add(Application.SlideShowWindows[1].View.Slide.SlideIndex + 1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                            Globals.ThisAddIn.Application.SlideShowWindows[1].View.Next();
+                        }
+                        else {
+                            try {
+                                slide = slides.Add(Application.ActiveWindow.Selection.SlideRange.SlideIndex + 1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                                slide.Select();
+                            }
+                            catch (COMException error) {
+                                slide = slides.Add(slides.Count + 1, PowerPoint.PpSlideLayout.ppLayoutBlank);
+                                slide.Select();
+                            }
+                        }
+                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, Math.Max(screenWidth - image.Width, 0) / 2, Math.Max(screenHeight - image.Height, 0) / 2);
+                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 25, 800, 50);
+                        textBoxAnswer.Name = "titleTextBox";
+                        textBoxAnswer.TextFrame.TextRange.Text = "Student Answers:";
+                        textBoxAnswer.TextFrame.TextRange.Font.Size = 36;
+                        hasStartAnswer = false;
                     }
                     else {
                         MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1).");

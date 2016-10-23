@@ -2,23 +2,26 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
   <ribbon>
     <tabs>
-      <tab idMso="TabAddIns" visible="true">
+      <tab id="ClassPie" label="ClassPie" visible="true">
         <group id="GroupQuestion"
                label="Question">
           <button id="addSingleQuestionButton" label="Add a Question"
                   screentip="Add a question with one or more answers."
                   supertip="Add a quesition."
-                  size="large" onAction="OnAddSingleQuestionButton_Click"/>
+                  size="large" onAction="OnAddSingleQuestionButton_Click"
+                  getImage="GetAddQuestionImage"/>
           <button id="uploadQuestionButton" label="Upload questions"
                   screentip="Upload questions you created." supertip="Upload questions"
-                  size="large" onAction="OnUploadQuestionButton_Click"/>
+                  size="large" onAction="OnUploadQuestionButton_Click"
+                  getImage="GetUploadButtonImage"/>
         </group>
         <group id="GroupDanmaku"
                label="Danmaku">
-          <button id="danmakuButton" getLabel="danmakuLabel"
+          <toggleButton id="danmakuButton" getLabel="GetDanmakuLabel"
                   screentip="Display the danmaku (or not)."
                   onAction="OnDanmakuButton_Click"
-                  supertip="Display the danmaku (or not)." size="large"/>
+                  supertip="Display the danmaku (or not)." size="large"
+                  getImage="GetDanmakuImage"/>
         </group>
       </tab>
     </tabs>
