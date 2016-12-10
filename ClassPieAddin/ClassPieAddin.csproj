@@ -29,19 +29,19 @@
     <AssemblyName>ClassPieAddin</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
+    <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>发布\</PublishUrl>
+    <PublishUrl>C:\Users\Thesharing\Desktop\ClassPie\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <ApplicationVersion>1.0.0.2</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>days</UpdateIntervalUnits>
-    <IsWebBootstrapper>False</IsWebBootstrapper>
+    <UpdateIntervalUnits>hours</UpdateIntervalUnits>
     <ProductName>ClassPieAddin</ProductName>
-    <PublisherName />
-    <SupportUrl />
+    <PublisherName>Pie Team</PublisherName>
+    <SupportUrl>http://www.danmakupie.com</SupportUrl>
     <FriendlyName>ClassPieAddin</FriendlyName>
     <OfficeApplicationDescription />
     <LoadBehavior>3</LoadBehavior>
@@ -195,6 +195,12 @@
     </Compile>
     <Compile Include="DanmakuEngine.cs" />
     <Compile Include="MainRibbon.cs" />
+    <Compile Include="ModifyQuestionForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ModifyQuestionForm.Designer.cs">
+      <DependentUpon>ModifyQuestionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MyWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -214,6 +220,9 @@
     <EmbeddedResource Include="AddQuestionForm.resx">
       <DependentUpon>AddQuestionForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ModifyQuestionForm.resx">
+      <DependentUpon>ModifyQuestionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -226,9 +235,6 @@
     <EmbeddedResource Include="IconResource.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>IconResource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestForm.resx">
-      <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ClassPieAddin_1_TemporaryKey.pfx" />
     <None Include="ClassPieAddin_TemporaryKey.pfx" />
@@ -243,12 +249,6 @@
     </Compile>
     <Compile Include="Question.cs" />
     <Compile Include="Setting.cs" />
-    <Compile Include="TestForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestForm.Designer.cs">
-      <DependentUpon>TestForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -269,6 +269,7 @@
     <Content Include="Picture\addQuestion.png" />
     <Content Include="Picture\danmakuOff.png" />
     <Content Include="Picture\danmakuOn.png" />
+    <Content Include="Picture\modifyQuestion.png" />
     <Content Include="Picture\upload.png" />
   </ItemGroup>
   <ItemGroup>
@@ -296,8 +297,8 @@
     <VisualStudio>
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
         <ProjectProperties HostName="PowerPoint" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="PowerPoint" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\PowerPoint\InstallRoot\Path#powerpnt.exe" AddItemTemplatesGuid="{51063C3A-E220-4D12-8922-BDA915ACD783}" />
-        <Host Name="PowerPoint" GeneratedCodeNamespace="ClassPieAddin" IconIndex="0">
-          <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
+        <Host Name="PowerPoint" GeneratedCodeNamespace="ClassPieAddin" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
+          <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" PublishedHash="5616F9691D8696FA06E775C7BE16E94A7A73E515" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
         </Host>
       </FlavorProperties>
     </VisualStudio>

@@ -36,7 +36,7 @@ using Newtonsoft.Json;
 namespace ClassPieAddin {
     [ComVisible(true)]
     public class MainRibbon : Office.IRibbonExtensibility {
-        private Office.IRibbonUI ribbon;
+        public Office.IRibbonUI ribbon;
 
         public bool isDanmakuOn = false;
         public bool hasStartAnswer = false;
@@ -60,17 +60,17 @@ namespace ClassPieAddin {
             this.ribbon = ribbonUI;
         }
 
-        public void OnAddSingleQuestionButton_Click(Office.IRibbonControl control) {
+        public void OnAddQuestionButton_Click(Office.IRibbonControl control) {
             ThisAddIn main = Globals.ThisAddIn;
             foreach (vsto.CustomTaskPane ctp in main.CustomTaskPanes) {
-                if(ctp.Control is AddQuestionForm) {
+                if(ctp.Control is AddQuestionForm || ctp.Control is ModifyQuestionForm) {
                     main.CustomTaskPanes.Remove(ctp);
                     break;
                 }
             }
-            vsto.CustomTaskPane ct = main.CustomTaskPanes.Add(new AddQuestionForm(), "Add a question");
+            vsto.CustomTaskPane ct = main.CustomTaskPanes.Add(new AddQuestionForm(), "添加问题");
             ct.Visible = true;
-            ct.Width = 250;
+            ct.Width = 270;
         }
 
         public void OnDanmakuButton_Click(Office.IRibbonControl control, bool pressed) {
@@ -143,6 +143,19 @@ namespace ClassPieAddin {
             }
         }
 
+        public void OnModifyQuestionButton_Click(Office.IRibbonControl control) {
+            ThisAddIn main = Globals.ThisAddIn;
+            foreach (vsto.CustomTaskPane ctp in main.CustomTaskPanes) {
+                if (ctp.Control is ModifyQuestionForm || ctp.Control is AddQuestionForm) {
+                    main.CustomTaskPanes.Remove(ctp);
+                    break;
+                }
+            }
+            vsto.CustomTaskPane ct = main.CustomTaskPanes.Add(new ModifyQuestionForm(), "修改问题");
+            ct.Visible = true;
+            ct.Width = 270;
+        }
+
         #endregion
 
         #region Functions
@@ -170,6 +183,40 @@ namespace ClassPieAddin {
             }
         }
 
+        public Boolean GetModifyQuestionButtonEnabled(Office.IRibbonControl control) {
+            PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
+            PowerPoint.Slide slide;
+            if (Globals.ThisAddIn.Application.SlideShowWindows.Count > 0) {
+                slide = slides._Index(Globals.ThisAddIn.Application.SlideShowWindows[1].View.Slide.SlideIndex);
+            }
+            else {
+                try {
+                    slide = slides._Index(Globals.ThisAddIn.Application.ActiveWindow.Selection.SlideRange.SlideIndex);
+                }
+                catch {
+                    ThisAddIn main = Globals.ThisAddIn;
+                    foreach (vsto.CustomTaskPane ctp in main.CustomTaskPanes) {
+                        if (ctp.Control is ModifyQuestionForm) {
+                            main.CustomTaskPanes.Remove(ctp);
+                            break;
+                        }
+                    }
+                    return false;
+                }
+            }
+            try {
+                if (slide.Tags["Question"] == "Yes") {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            catch {
+                return false;
+            }
+        }
+
         public Boolean GetEndButtonEnabled(Office.IRibbonControl control) {
             return hasStartAnswer;
         }
@@ -182,12 +229,16 @@ namespace ClassPieAddin {
             return IconResource.addQuestion;
         }
 
+        public Bitmap GetModifyQuestionImage(Office.IRibbonControl control) {
+            return IconResource.modifyQuestion;
+        }
+
         public string GetDanmakuLabel(Office.IRibbonControl control) {
             if(isDanmakuOn == true) {
-                return "Danmaku On";
+                return "弹幕 开";
             }
             else {
-                return "Danmaku Off";
+                return "弹幕 关";
             }
         }
 
@@ -202,7 +253,7 @@ namespace ClassPieAddin {
 
         public void BeginButton_Click(Office.IRibbonControl control) {
             if (Setting.problemNumber == -1) {
-                MessageBox.Show("Please upload your questions first.");
+                MessageBox.Show("请先上传并生成问卷。");
             }
             else {
                 hasStartAnswer = true;

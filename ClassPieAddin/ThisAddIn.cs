@@ -31,6 +31,8 @@ namespace ClassPieAddin
         {
             Globals.ThisAddIn.Application.SlideShowBegin += Application_SlideShowBegin;
             Globals.ThisAddIn.Application.SlideShowEnd += Application_SlideShowEnd;
+            Globals.ThisAddIn.Application.SlideSelectionChanged += Application_SlideSelectionChanged;
+
             //danmakuEngine.ShowDanmaku("This is a long word.", System.Drawing.Color.Black, new Font("微软雅黑", 16));
             fetchBW.WorkerReportsProgress = true;
             fetchBW.WorkerSupportsCancellation = true;
@@ -49,25 +51,13 @@ namespace ClassPieAddin
             getWebContentTimer.AutoReset = false; // 不会自动重置计时器，即只计时一次
         }
 
-        private void OnTimedEvent(object sender, EventArgs e) {
-            if (danmuStorage.Count > 0) {
-                var text = danmuStorage[0];
-                danmuStorage.RemoveAt(0);
-                if (danmakuEngine.DanmakuCount < Setting.num)
-                    danmakuEngine.ShowDanmaku(text, Color.Black, new Font("微软雅黑",Setting.fontSize));
-            }
-            if (danmuStorage.Count < Setting.num) {
-                if (fetchBW.IsBusy == false) {
-                    getWebContentTimer.Start();
-                    fetchBW.RunWorkerAsync();
-                }
-            }
-        }
-
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
         }
 
+        private void Application_SlideSelectionChanged(PowerPoint.SlideRange SldRange) {
+            Setting.mainRibbon.ribbon.InvalidateControl("modifyQuestionButton");
+        }
 
         private void Application_SlideShowBegin(PowerPoint.SlideShowWindow Wn) {
             if (Setting.mainRibbon.isDanmakuOn) {
@@ -84,6 +74,21 @@ namespace ClassPieAddin
             }
         }
 
+
+        private void OnTimedEvent(object sender, EventArgs e) {
+            if (danmuStorage.Count > 0) {
+                var text = danmuStorage[0];
+                danmuStorage.RemoveAt(0);
+                if (danmakuEngine.DanmakuCount < Setting.num)
+                    danmakuEngine.ShowDanmaku(text, Color.Black, new Font("微软雅黑", Setting.fontSize));
+            }
+            if (danmuStorage.Count < Setting.num) {
+                if (fetchBW.IsBusy == false) {
+                    getWebContentTimer.Start();
+                    fetchBW.RunWorkerAsync();
+                }
+            }
+        }
 
         protected override Microsoft.Office.Core.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {

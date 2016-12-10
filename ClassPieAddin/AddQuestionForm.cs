@@ -60,36 +60,36 @@ namespace ClassPieAddin {
 
             var textBoxTitle = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 30, 600, 50);
             textBoxTitle.Name = "TextBoxTitle";
-            textBoxTitle.TextFrame.TextRange.Text = "Question";//设置文本框的内容
+            textBoxTitle.TextFrame.TextRange.Text = "题目";//设置文本框的内容
             textBoxTitle.TextFrame.TextRange.Font.Size = 72;//设置文本字体大小
             textBoxTitle.TextFrame.TextRange.Font.Color.RGB = Color.Black.ToArgb();
             textBoxTitle.TextFrame.TextRange.Font.Bold = Office.MsoTriState.msoTrue;
 
             var textBoxQuestion = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 150, 600, 50);
             textBoxQuestion.Name = "TextBoxQuestion";
-            textBoxQuestion.TextFrame.TextRange.Text = "Input the description of the question here.";//设置文本框的内容
+            textBoxQuestion.TextFrame.TextRange.Text = "在这里输入问题描述。";//设置文本框的内容
             textBoxQuestion.TextFrame.TextRange.Font.Size = 32;//设置文本字体大小
             textBoxQuestion.TextFrame.TextRange.Font.Color.RGB = Color.Black.ToArgb();
 
             //What if not exist?
             var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 200, 600, 50);
             textBoxAnswer.Name = "TextBoxAnswer1";
-            textBoxAnswer.TextFrame.TextRange.Text = "A. Choice 1.";
+            textBoxAnswer.TextFrame.TextRange.Text = "A. 选项 1.";
             textBoxAnswer.TextFrame.TextRange.Font.Size = 24;//设置文本字体大小
 
             textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 250, 600, 50);
             textBoxAnswer.Name = "TextBoxAnswer2";
-            textBoxAnswer.TextFrame.TextRange.Text = "B. Choice 2.";
+            textBoxAnswer.TextFrame.TextRange.Text = "B. 选项 2.";
             textBoxAnswer.TextFrame.TextRange.Font.Size = 24;//设置文本字体大小
 
             textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 300, 600, 50);
             textBoxAnswer.Name = "TextBoxAnswer3";
-            textBoxAnswer.TextFrame.TextRange.Text = "C. Choice 3.";
+            textBoxAnswer.TextFrame.TextRange.Text = "C. 选项 3.";
             textBoxAnswer.TextFrame.TextRange.Font.Size = 24;//设置文本字体大小
 
             textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 350, 600, 50);
             textBoxAnswer.Name = "TextBoxAnswer4";
-            textBoxAnswer.TextFrame.TextRange.Text = "D. Choice 4.";
+            textBoxAnswer.TextFrame.TextRange.Text = "D. 选项 4.";
             textBoxAnswer.TextFrame.TextRange.Font.Size = 24;//设置文本字体大小
         }
 
@@ -130,7 +130,7 @@ namespace ClassPieAddin {
                                 this.panel1.Controls.Add(label);
                                 label.Location = new Point(20, 47 + 40 * i);
                                 label.Name = "label" + i.ToString();
-                                label.Text = "Choice " + i.ToString();
+                                label.Text = "选项 " + i.ToString();
                                 textboxArray.Add(text);
                                 labelArray.Add(label);
                             }
@@ -158,11 +158,11 @@ namespace ClassPieAddin {
             this.panel1.Controls.Add(label);
             label.Location = new Point(20, 47 + 40 * count);
             label.Name = "label" + count.ToString();
-            label.Text = "Choice " + count.ToString();
+            label.Text = "选项 " + count.ToString();
             textboxArray.Add(text);
             var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 150 + count * 50, 600, 50);
             textBoxAnswer.Name = "TextBoxAnswer" + count.ToString();
-            text.Text = textBoxAnswer.TextFrame.TextRange.Text = ((char)('A'+ count - 1)).ToString() +". Choice " + count.ToString() + ".";
+            text.Text = textBoxAnswer.TextFrame.TextRange.Text = ((char)('A'+ count - 1)).ToString() +". 选项 " + count.ToString() + ".";
             textBoxAnswer.TextFrame.TextRange.Font.Size = 24;//设置文本字体大小
             text.TextChanged += ChoiceBox_TextChanged;
             labelArray.Add(label);
@@ -178,7 +178,7 @@ namespace ClassPieAddin {
                 slide.Shapes["TextBoxAnswer" + (count + 1).ToString()].Delete();
             }
             else {
-                MessageBox.Show("No choice.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("没有可删除的选项。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

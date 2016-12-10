@@ -2,25 +2,31 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
   <ribbon>
     <tabs>
-      <tab id="ClassPie" label="ClassPie" visible="true">
+      <tab id="ClassPie" label="课堂派" visible="true">
         <group id="GroupQuestion"
-               label="Question">
-          <button id="addSingleQuestionButton" label="Add a Question"
-                  screentip="Add a question with one or more answers."
-                  supertip="Add a quesition."
-                  size="large" onAction="OnAddSingleQuestionButton_Click"
+               label="问题">
+          <button id="addQuestionButton" label="添加问题"
+                  screentip="添加一个单选题。"
+                  supertip="添加问题"
+                  size="large" onAction="OnAddQuestionButton_Click"
                   getImage="GetAddQuestionImage"/>
-          <button id="uploadQuestionButton" label="Upload questions"
-                  screentip="Upload questions you created." supertip="Upload questions"
+          <button id="modifyQuestionButton" label="修改问题"
+                  screentip="修改已经添加过的问题。"
+                  supertip="修改问题"
+                  size="large" onAction="OnModifyQuestionButton_Click"
+                  getEnabled="GetModifyQuestionButtonEnabled"
+                  getImage="GetModifyQuestionImage"/>
+          <button id="uploadQuestionButton" label="生成问卷"
+                  screentip="将现有问题上传并生成问卷，将在演示文档的首页放置一个二维码，通过扫描二维码可以查看问卷。" supertip="上传并生成问卷"
                   size="large" onAction="OnUploadQuestionButton_Click"
                   getImage="GetUploadButtonImage"/>
         </group>
         <group id="GroupDanmaku"
-               label="Danmaku">
+               label="弹幕">
           <toggleButton id="danmakuButton" getLabel="GetDanmakuLabel"
-                  screentip="Display the danmaku (or not)."
+                  screentip="控制是否显示弹幕。"
                   onAction="OnDanmakuButton_Click"
-                  supertip="Display the danmaku (or not)." size="large"
+                  supertip="弹幕显示" size="large"
                   getImage="GetDanmakuImage"/>
         </group>
       </tab>
@@ -28,8 +34,8 @@
   </ribbon>
   <contextMenus>
     <contextMenu idMso="ContextMenuSlideShow">
-      <button id="beginButton" label ="Begin to Answer Questions" getVisible="GetBeginButtonEnabled" onAction="BeginButton_Click"/>
-      <button id="endButton" label="End Answering" getVisible="GetEndButtonEnabled" onAction="EndButton_Click"/>
+      <button id="beginButton" label ="开始回答问题" getVisible="GetBeginButtonEnabled" onAction="BeginButton_Click"/>
+      <button id="endButton" label="结束回答" getVisible="GetEndButtonEnabled" onAction="EndButton_Click"/>
     </contextMenu>
   </contextMenus>
 </customUI>
