@@ -267,6 +267,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Picture\addQuestion.png" />
+    <None Include="Picture\beginClass.png" />
     <Content Include="Picture\danmakuOff.png" />
     <Content Include="Picture\danmakuOn.png" />
     <Content Include="Picture\modifyQuestion.png" />

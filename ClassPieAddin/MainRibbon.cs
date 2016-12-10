@@ -103,7 +103,7 @@ namespace ClassPieAddin {
                 string message = JsonConvert.SerializeObject(problem);
                 //MessageBox.Show(message);
                 string str = Communitcate.SendAndReceiveStr(message + "}", "http://www.zhengzi.me/classpie/controller/appctrl.php?func=sendProblem&para={\"problemInfo\":");
-                System.Diagnostics.Debug.WriteLine(str);
+                //System.Diagnostics.Debug.WriteLine(str);
                 try {
                     Setting.problemNumber = int.Parse(str);
                     PowerPoint.Application Application = Globals.ThisAddIn.Application;
@@ -125,12 +125,15 @@ namespace ClassPieAddin {
                     string fileName = Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getQrCode&para={\"problemId\":" + Setting.problemNumber.ToString() + "}");
                     if (fileName != null) {
                         Image image = Image.FromFile(fileName);
-                        float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
-                        float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
-                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, 280, 100, 400, 400);
-                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 180, 50, 800, 50);
+                        float height = Application.ActivePresentation.PageSetup.SlideHeight;
+                        float width = Application.ActivePresentation.PageSetup.SlideWidth;
+                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, width / 2 - 200, height / 2 - 150, 400, 400);
+                        System.Diagnostics.Debug.WriteLine(width);
+                        System.Diagnostics.Debug.WriteLine(height);
+                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, width / 2 - 250, 50, 500, 50);
                         textBoxAnswer.Name = "tipsTextBox";
-                        textBoxAnswer.TextFrame.TextRange.Text = "Scan the QR code to answer questions.";
+                        textBoxAnswer.TextFrame.HorizontalAnchor = Office.MsoHorizontalAnchor.msoAnchorCenter;
+                        textBoxAnswer.TextFrame.TextRange.Text = "扫描二维码，开始上课";
                         textBoxAnswer.TextFrame.TextRange.Font.Size = 36;
                     }
                     else {
@@ -140,6 +143,9 @@ namespace ClassPieAddin {
                 catch {
                     MessageBox.Show("Communication with server has encountered \nsome problem (Error Code 1)."+"\nReceive: "+str);
                 }
+            }
+            else {
+                MessageBox.Show("您还没有设置问题。");
             }
         }
 
@@ -156,31 +162,22 @@ namespace ClassPieAddin {
             ct.Width = 270;
         }
 
+        public void OnStartLessonButton_Click(Office.IRibbonControl control) {
+            if (Setting.problemNumber == -1) {
+                MessageBox.Show("请先上传并生成问卷。");
+            }
+            else {
+                Globals.ThisAddIn.Application.ActivePresentation.SlideShowSettings.Run();
+                Setting.isLesson = true;
+            }
+        }
+
         #endregion
 
         #region Functions
 
         public Boolean GetBeginButtonEnabled(Office.IRibbonControl control) {
-            PowerPoint.Application Application = Globals.ThisAddIn.Application;
-            PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
-            PowerPoint.Slide slide;
-            if (Application.SlideShowWindows.Count > 0) {
-                slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
-            }
-            else {
-                slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
-            }
-            try {
-                if(slide.Tags["Question"] == "Yes") {
-                    return true & !hasStartAnswer;
-                }
-                else {
-                    return false;
-                }
-            }
-            catch (COMException error){
-                return false;
-            }
+            return false;
         }
 
         public Boolean GetModifyQuestionButtonEnabled(Office.IRibbonControl control) {
@@ -218,7 +215,26 @@ namespace ClassPieAddin {
         }
 
         public Boolean GetEndButtonEnabled(Office.IRibbonControl control) {
-            return hasStartAnswer;
+            PowerPoint.Application Application = Globals.ThisAddIn.Application;
+            PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
+            PowerPoint.Slide slide;
+            if (Application.SlideShowWindows.Count > 0) {
+                slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
+            }
+            else {
+                slide = slides._Index(Application.ActiveWindow.Selection.SlideRange.SlideIndex);
+            }
+            try {
+                if (slide.Tags["Question"] == "Yes") {
+                    return true & !hasStartAnswer;
+                }
+                else {
+                    return false;
+                }
+            }
+            catch (COMException error) {
+                return false;
+            }
         }
 
         public Bitmap GetUploadButtonImage(Office.IRibbonControl control) {
@@ -251,17 +267,19 @@ namespace ClassPieAddin {
             }
         }
 
+        public Bitmap GetStartLessonImage(Office.IRibbonControl control) {
+            return IconResource.beginClass;
+        }
+
         public void BeginButton_Click(Office.IRibbonControl control) {
+
+        }
+
+        public void EndButton_Click(Office.IRibbonControl control) {
             if (Setting.problemNumber == -1) {
                 MessageBox.Show("请先上传并生成问卷。");
             }
             else {
-                hasStartAnswer = true;
-            }
-        }
-
-        public void EndButton_Click(Office.IRibbonControl control) {
-            if(hasStartAnswer == true) {
                 PowerPoint.Application Application = Globals.ThisAddIn.Application;
                 PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;//获取当前应用程序的所有PPT文档
                 PowerPoint.Slide slide;
@@ -273,10 +291,10 @@ namespace ClassPieAddin {
                 }
                 if (Setting.problemNumber != -1) {
                     string fileName = Communitcate.SendAndSavePic("http://www.zhengzi.me/classpie/controller/appctrl.php?func=getChart&para={\"problemId\":" + Setting.problemNumber.ToString() + ", \"questionId\":" + slide.Tags["Number"] + "}");
-                    if (fileName != null){
+                    if (fileName != null) {
                         Image image = Image.FromFile(fileName);
-                        float screenHeight = (float)SystemParameters.PrimaryScreenHeight;
-                        float screenWidth = (float)SystemParameters.PrimaryScreenWidth;
+                        float height = Application.ActivePresentation.PageSetup.SlideHeight;
+                        float width = Application.ActivePresentation.PageSetup.SlideWidth;
                         if (Application.SlideShowWindows.Count > 0) {
                             slide = slides.Add(Application.SlideShowWindows[1].View.Slide.SlideIndex + 1, PowerPoint.PpSlideLayout.ppLayoutBlank);
                             Globals.ThisAddIn.Application.SlideShowWindows[1].View.Next();
@@ -291,10 +309,15 @@ namespace ClassPieAddin {
                                 slide.Select();
                             }
                         }
-                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, Math.Max(screenWidth - image.Width, 0) / 2, Math.Max(screenHeight - image.Height, 0) / 2);
-                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, 50, 25, 800, 50);
+                        slide.Shapes.AddPicture(fileName, Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue, (width - 400) / 2, (height - 300) / 2, 400, 300);
+                        System.Diagnostics.Debug.WriteLine(width);
+                        System.Diagnostics.Debug.WriteLine(height);
+                        System.Diagnostics.Debug.WriteLine(image.Width);
+                        System.Diagnostics.Debug.WriteLine(image.Height);
+                        var textBoxAnswer = slide.Shapes.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal, width / 2 - 250, 50, 500, 50);
                         textBoxAnswer.Name = "titleTextBox";
-                        textBoxAnswer.TextFrame.TextRange.Text = "Student Answers:";
+                        textBoxAnswer.TextFrame.HorizontalAnchor = Office.MsoHorizontalAnchor.msoAnchorCenter;
+                        textBoxAnswer.TextFrame.TextRange.Text = "学生回答情况:";
                         textBoxAnswer.TextFrame.TextRange.Font.Size = 36;
                         hasStartAnswer = false;
                     }
@@ -307,7 +330,6 @@ namespace ClassPieAddin {
                 }
             }
         }
-
         #endregion
 
         #region 帮助器

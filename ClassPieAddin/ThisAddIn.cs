@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace ClassPieAddin
 {
@@ -27,11 +28,16 @@ namespace ClassPieAddin
         private static List<string> danmuStorage = new List<string>();
         private System.Windows.Forms.Screen[] sc = System.Windows.Forms.Screen.AllScreens;
 
+        private int number = 0;
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Globals.ThisAddIn.Application.SlideShowBegin += Application_SlideShowBegin;
             Globals.ThisAddIn.Application.SlideShowEnd += Application_SlideShowEnd;
             Globals.ThisAddIn.Application.SlideSelectionChanged += Application_SlideSelectionChanged;
+            Globals.ThisAddIn.Application.SlideShowNextSlide += Application_SlideShowNextSlide;
+
+            Communitcate.Init();
 
             //danmakuEngine.ShowDanmaku("This is a long word.", System.Drawing.Color.Black, new Font("微软雅黑", 16));
             fetchBW.WorkerReportsProgress = true;
@@ -49,6 +55,20 @@ namespace ClassPieAddin
             getWebContentTimer.Elapsed += new ElapsedEventHandler(getWebContentTimeOut);
             getWebContentTimer.Interval = 3000;
             getWebContentTimer.AutoReset = false; // 不会自动重置计时器，即只计时一次
+        }
+
+        private void Application_SlideShowNextSlide(PowerPoint.SlideShowWindow Wn) {
+            PowerPoint.Application Application = Globals.ThisAddIn.Application;
+            if (Setting.isLesson) {
+                if (Application.SlideShowWindows.Count > 0) {
+                    PowerPoint.Slides slides = Globals.ThisAddIn.Application.ActivePresentation.Slides;
+                    PowerPoint.Slide slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
+                    float height = Application.ActivePresentation.PageSetup.SlideHeight;
+                    float width = Application.ActivePresentation.PageSetup.SlideWidth;
+                    slide.Export(System.IO.Path.GetTempPath() + "\\test.jpg", "JPG", (int)(width/2), (int)(height/2));
+                    Communitcate.HttpUploadFileBackground("http://119.29.69.215:5000/upload", System.IO.Path.GetTempPath() + "\\test.jpg", null);
+                }
+            }
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
@@ -72,6 +92,8 @@ namespace ClassPieAddin
             if (Setting.mainRibbon.isDanmakuOn) {
                 this.timer.Stop();
             }
+            Setting.isLesson = false;
+            Communitcate.EndSlideShow("http://119.29.69.215:5000/end");
         }
 
 

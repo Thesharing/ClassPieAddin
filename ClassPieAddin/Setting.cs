@@ -13,5 +13,6 @@ namespace ClassPieAddin {
         public static int num = 5;
         public static int fontSize = 24;
         public static MainRibbon mainRibbon;
+        public static bool isLesson = false;
     }
 }

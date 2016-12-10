@@ -73,6 +73,16 @@ namespace ClassPieAddin {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        public static System.Drawing.Bitmap beginClass {
+            get {
+                object obj = ResourceManager.GetObject("beginClass", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         public static System.Drawing.Bitmap danmakuOff {
             get {
                 object obj = ResourceManager.GetObject("danmakuOff", resourceCulture);

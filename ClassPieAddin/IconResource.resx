@@ -121,6 +121,9 @@
   <data name="addQuestion" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Picture\addQuestion.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="beginClass" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Picture\beginClass.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="danmakuOff" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Picture\danmakuOff.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
