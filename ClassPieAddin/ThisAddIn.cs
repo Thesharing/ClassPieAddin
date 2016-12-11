@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Collections.Specialized;
 
 namespace ClassPieAddin
 {
@@ -65,8 +66,10 @@ namespace ClassPieAddin
                     PowerPoint.Slide slide = slides._Index(Application.SlideShowWindows[1].View.Slide.SlideIndex);
                     float height = Application.ActivePresentation.PageSetup.SlideHeight;
                     float width = Application.ActivePresentation.PageSetup.SlideWidth;
-                    slide.Export(System.IO.Path.GetTempPath() + "\\test.jpg", "JPG", (int)(width/2), (int)(height/2));
-                    Communitcate.HttpUploadFileBackground("http://119.29.69.215:5000/upload", System.IO.Path.GetTempPath() + "\\test.jpg", null);
+                    string fileName = System.IO.Path.GetTempPath() + "\\test_" + DateTime.Now.DayOfWeek.ToString()+"_" + DateTime.Now.Hour+"_"+DateTime.Now.Minute+"_"+DateTime.Now.Second+".jpg";
+                    System.Diagnostics.Debug.WriteLine(fileName);
+                    slide.Export(fileName, "JPG", (int)(width/2), (int)(height/2));
+                    Communitcate.HttpUploadFileBackground("http://119.29.69.215:5000/upload?question=" + Setting.GetCurrentQuestionNo(slide).ToString(), fileName, null);
                 }
             }
         }
@@ -127,7 +130,7 @@ namespace ClassPieAddin
         /// <param name="e"></param>
         private void FetchBW_DoWork(Object sender, DoWorkEventArgs e) {
             BackgroundWorker backgroundWorker = sender as BackgroundWorker;
-            string textFetched = GetWebContent("http://www.zhengzi.me/danmu/olds/controller/desktop.php?func=getSeq&user=ketangpie&hashPass=9e6698f2e99b56dbb21164101f600ac0");
+            string textFetched = GetWebContent("http://www.zhengzi.me/danmu/olds/controller/desktop.php?func=getSeq&user=classpie&hashPass=ca80ec371a0ed3a88b38cc0eaa68c8d0");
             int num;
             List<string> contentList = new List<string>();
 

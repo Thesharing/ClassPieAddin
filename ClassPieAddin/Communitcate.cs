@@ -25,20 +25,34 @@ namespace ClassPieAddin {
             }
         }
 
-        public static BackgroundWorker fetchBW = new BackgroundWorker();
+        public static BackgroundWorker uploadFileBW = new BackgroundWorker();
+        public static BackgroundWorker sendMessageBW = new BackgroundWorker();
         public static Timer uploadFileTimer = new Timer();
+        public static Timer sendMessageTimer = new Timer();
+
+        private static UploadFileRequest requestCache;
+        private static bool hasRequestInCache;
 
         public static void Init() {
-            fetchBW.WorkerReportsProgress = true;
-            fetchBW.WorkerSupportsCancellation = true;
-            fetchBW.DoWork += new DoWorkEventHandler(FetchBW_DoWork);
-            fetchBW.ProgressChanged += new ProgressChangedEventHandler(FetchBW_ProgressChanged);
-            fetchBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(FetchBW_RunWorkerCompleted);
+            uploadFileBW.WorkerReportsProgress = true;
+            uploadFileBW.WorkerSupportsCancellation = true;
+            uploadFileBW.DoWork += new DoWorkEventHandler(UploadFileBW_DoWork);
+            uploadFileBW.ProgressChanged += new ProgressChangedEventHandler(UploadFileBW_ProgressChanged);
+            uploadFileBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(UploadFileBW_RunWorkerCompleted);
 
-            uploadFileTimer = new Timer();
-            uploadFileTimer.Elapsed += new ElapsedEventHandler(uploadTimeOut);
+            uploadFileTimer.Elapsed += new ElapsedEventHandler(UploadTimeOut);
             uploadFileTimer.Interval = 10000;
             uploadFileTimer.AutoReset = false; // 不会自动重置计时器，即只计时一次
+
+            sendMessageBW.WorkerReportsProgress = true;
+            sendMessageBW.WorkerSupportsCancellation = true;
+            sendMessageBW.DoWork += new DoWorkEventHandler(SendMessageBW_DoWork);
+            sendMessageBW.ProgressChanged += new ProgressChangedEventHandler(SendMessageBW_ProgressChanged);
+            sendMessageBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(SendMessageBW_RunWorkerCompleted);
+
+            sendMessageTimer.Elapsed += new ElapsedEventHandler(SendMessageTimeOut);
+            sendMessageTimer.Interval = 5000;
+            sendMessageTimer.AutoReset = false;
         }
 
         public static string SendAndReceiveStr(string message, string url) {
@@ -118,91 +132,133 @@ namespace ClassPieAddin {
         /// <param name="encoding"></param>
         /// <returns></returns>
         public static string HttpUploadFile(string url, string[] files, NameValueCollection data, Encoding encoding) {
-            string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
-            byte[] endbytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+            try {
+                string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+                byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] endbytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
 
-            //1.HttpWebRequest
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.ContentType = "multipart/form-data; boundary=" + boundary;
-            request.Method = "POST";
-            request.KeepAlive = true;
-            request.Credentials = CredentialCache.DefaultCredentials;
+                //1.HttpWebRequest
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.ContentType = "multipart/form-data; boundary=" + boundary;
+                request.Method = "POST";
+                request.KeepAlive = true;
+                request.Credentials = CredentialCache.DefaultCredentials;
 
-            using (Stream stream = request.GetRequestStream()) {
-                //1.1 key/value
-                string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
-                if (data != null) {
-                    foreach (string key in data.Keys) {
-                        stream.Write(boundarybytes, 0, boundarybytes.Length);
-                        string formitem = string.Format(formdataTemplate, key, data[key]);
-                        byte[] formitembytes = encoding.GetBytes(formitem);
-                        stream.Write(formitembytes, 0, formitembytes.Length);
-                    }
-                }
-
-                //1.2 file
-                string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: image/pjpeg\r\n\r\n";
-                byte[] buffer = new byte[4096];
-                int bytesRead = 0;
-                for (int i = 0; i < files.Length; i++) {
-                    stream.Write(boundarybytes, 0, boundarybytes.Length);
-                    string header = string.Format(headerTemplate, "file", Path.GetFileName(files[i]));
-                    byte[] headerbytes = encoding.GetBytes(header);
-                    stream.Write(headerbytes, 0, headerbytes.Length);
-                    using (FileStream fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read)) {
-                        while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0) {
-                            stream.Write(buffer, 0, bytesRead);
+                using (Stream stream = request.GetRequestStream()) {
+                    //1.1 key/value
+                    string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
+                    if (data != null) {
+                        foreach (string key in data.Keys) {
+                            stream.Write(boundarybytes, 0, boundarybytes.Length);
+                            string formitem = string.Format(formdataTemplate, key, data[key]);
+                            byte[] formitembytes = encoding.GetBytes(formitem);
+                            stream.Write(formitembytes, 0, formitembytes.Length);
                         }
                     }
+
+                    //1.2 file
+                    string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: image/pjpeg\r\n\r\n";
+                    byte[] buffer = new byte[4096];
+                    int bytesRead = 0;
+                    for (int i = 0; i < files.Length; i++) {
+                        stream.Write(boundarybytes, 0, boundarybytes.Length);
+                        string header = string.Format(headerTemplate, "file", Path.GetFileName(files[i]));
+                        byte[] headerbytes = encoding.GetBytes(header);
+                        stream.Write(headerbytes, 0, headerbytes.Length);
+                        using (FileStream fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read)) {
+                            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0) {
+                                stream.Write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+                    //1.3 form end
+                    stream.Write(endbytes, 0, endbytes.Length);
                 }
-                //1.3 form end
-                stream.Write(endbytes, 0, endbytes.Length);
+                //2.WebResponse
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                using (StreamReader stream = new StreamReader(response.GetResponseStream())) {
+                    return stream.ReadToEnd();
+                }
             }
-            //2.WebResponse
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            using (StreamReader stream = new StreamReader(response.GetResponseStream())) {
-                return stream.ReadToEnd();
+            catch(Exception e) {
+                System.Windows.MessageBox.Show(e.Message);
+                return "";
             }
         }
 
         public static void HttpUploadFileBackground(string url, string file, NameValueCollection data) {
             UploadFileRequest request = new UploadFileRequest(url, file, data);
-            if (fetchBW.IsBusy) {
-                System.Windows.MessageBox.Show("切换速度过快。");
+            if (uploadFileBW.IsBusy) {
+                requestCache = request;
+                hasRequestInCache = true;
+                uploadFileBW.CancelAsync();
             }
             else {
-                fetchBW.RunWorkerAsync(request);
+                uploadFileBW.RunWorkerAsync(request);
                 uploadFileTimer.Start();
             }
         }
 
-        private static void FetchBW_DoWork(Object sender, DoWorkEventArgs e) {
+        private static void UploadFileBW_DoWork(Object sender, DoWorkEventArgs e) {
             BackgroundWorker backgroundWorker = sender as BackgroundWorker;
             UploadFileRequest request = (UploadFileRequest)e.Argument;
             e.Result = HttpUploadFile(request.url, request.file, request.data);
             backgroundWorker.ReportProgress(100); // 当Dowork完成时直接将进度设为100%，执行RunWorkerCompleted
         }
 
-        private static void FetchBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        private static void UploadFileBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             return;
         }
 
-        private static void FetchBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        private static void UploadFileBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (e.Cancelled == true || e.Error != null) {
                 System.Diagnostics.Debug.WriteLine("Wrong at Uploading Picture.");
             }
             uploadFileTimer.Stop();
+            if(hasRequestInCache == true) {
+                hasRequestInCache = false;
+                uploadFileBW.RunWorkerAsync(requestCache);
+            }
         }
 
-        private static void uploadTimeOut(object sender, EventArgs e) {
-            fetchBW.CancelAsync();
+        private static void SendMessageBW_DoWork(object sender, DoWorkEventArgs e) {
+            BackgroundWorker backgroundWorker = sender as BackgroundWorker;
+            string url = e.Argument as string;
+            try {
+                using (WebClient client = new WebClient()) {
+                    byte[] buffer = client.DownloadData(url);
+                    e.Result = buffer.ToString();
+                }
+            }
+            catch (WebException error) {
+                System.Diagnostics.Debug.WriteLine("Error when End.");
+                backgroundWorker.CancelAsync();
+            }
+            backgroundWorker.ReportProgress(100);
+        }
+
+        private static void SendMessageBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            return;
+        }
+
+        private static void SendMessageBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled == true || e.Error != null) {
+                System.Diagnostics.Debug.WriteLine("Wrong at sending message.");
+            }
+            sendMessageTimer.Stop();
+        }
+
+        private static void SendMessageTimeOut(object sender, EventArgs e) {
+            sendMessageBW.CancelAsync();
+        }
+
+        private static void UploadTimeOut(object sender, EventArgs e) {
+            uploadFileBW.CancelAsync();
         }
 
         public static void EndSlideShow(string url) {
-            using (WebClient client = new WebClient()) {
-                byte[] buffer = client.DownloadData(url);
-            }
+            sendMessageBW.RunWorkerAsync(url);
+            sendMessageTimer.Start();
         }
     }
 }
